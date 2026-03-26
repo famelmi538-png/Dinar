@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toasts - Koллекция лучших тостов</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #1a0a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #f0e6d3;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            background: linear-gradient(180deg, rgba(183, 110, 42, 0.3) 0%, transparent 100%);
+        }
+
+        header h1 {
+            font-size: 3.5rem;
+            color: #f5c542;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            color: #d4a76a;
+            font-style: italic;
+        }
+
+        .glass-icon {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .controls button {
+            padding: 10px 22px;
+            border: 2px solid #f5c542;
+            background: transparent;
+            color: #f5c542;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .controls button:hover,
+        .controls button.active {
+            background: #f5c542;
+            color: #1a0a2e;
+        }
+
+        .toasts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .toast-card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(245, 197, 66, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toast-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 4px;
+            background: linear-gradient(90deg, #f5c542, #e6833c);
+        }
+
+        .toast-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(245, 197, 66, 0.15);
+        }
+
+        .toast-card .category {
+            display: inline-block;
+            background: rgba(245, 197, 66, 0.2);
+            color: #f5c542;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .toast-card .text {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #e8dcc8;
+            margin-bottom: 15px;
+        }
+
+        .toast-card .ending {
+            font-size: 1.05rem;
+            color: #f5c542;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .random-section {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .random-btn {
+            padding: 16px 40px;
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, #f5c542, #e6833c);
+            color: #1a0a2e;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 20px rgba(245, 197, 66, 0.3);
+        }
+
+        .random-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 30px rgba(245, 197, 66, 0.5);
+        }
+
+        .random-result {
+            max-width: 600px;
+            margin: 30px auto 0;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(245, 197, 66, 0.3);
+            border-radius: 16px;
+            font-size: 1.2rem;
+            line-height: 1.8;
+            display: none;
+        }
+
+        .random-result.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b5b3e;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 2.2rem; }
+            .toasts-grid { grid-template-columns: 1fr; padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <span class="glass-icon">&#127864;</span>
+    <h1>&#127867; Коллекция Тостов</h1>
+    <p>Лучшие тосты для любого праздника и застолья</p>
+</header>
+
+<div class="controls">
+    <button class="active" onclick="filterToasts('all')">Все</button>
+    <button onclick="filterToasts('birthday')">День рождения</button>
+    <button onclick="filterToasts('wedding')">Свадебные</button>
+    <button onclick="filterToasts('friendship')">За дружбу</button>
+    <button onclick="filterToasts('love')">За любовь</button>
+    <button onclick="filterToasts('health')">За здоровье</button>
+    <button onclick="filterToasts('humor')">Смешные</button>
+    <button onclick="filterToasts('wisdom')">Мудрые</button>
+</div>
+
+<div class="random-section">
+    <button class="random-btn" onclick="showRandom()">&#127922; Случайный тост</button>
+    <div class="random-result" id="randomResult"></div>
+</div>
+
+<div class="toasts-grid" id="toastsGrid"></div>
+
+<footer>
+    <p>&#127864; Пейте ответственно. Поднимайте бокалы с душой!</p>
+</footer>
+
+<script>
+const toasts = [
+    {
+        category: "birthday",
+        categoryName: "День рождения",
+        text: "Говорят, что у каждого человека есть своя звезда на небе. Так пусть твоя звезда светит ярче всех, освещая путь к счастью, здоровью и благополучию!",
+        ending: "С днём рождения!"
+    },
+    {
+        category: "birthday",
+        categoryName: "День рождения",
+        text: "Пусть каждый новый год жизни будет как хорошее вино - только лучше с годами. Пусть морщинки будут только от улыбок, а слёзы - только от счастья!",
+        ending: "За именинника!"
+    },
+    {
+        category: "birthday",
+        categoryName: "День рождения",
+        text: "Желаю тебе столько счастья, чтобы хватило на всю жизнь, столько здоровья, чтобы хватило на два века, и столько любви, чтобы хватило на целую вселенную!",
+        ending: "За тебя!"
+    },
+    {
+        category: "wedding",
+        categoryName: "Свадебный",
+        text: "Дорогие молодожёны! Пусть ваш семейный корабль всегда плывёт по морю любви, а если встретятся штормы - пусть они только укрепят ваш союз. Любите друг друга так, как сегодня - горячо и нежно!",
+        ending: "Горько!"
+    },
+    {
+        category: "wedding",
+        categoryName: "Свадебный",
+        text: "Есть такая мудрость: в счастливой семье жена думает, что муж прав, а муж думает, что жена права. Пусть в вашей семье каждый всегда будет прав - потому что будет прав тот, кто любит!",
+        ending: "За любовь и согласие!"
+    },
+    {
+        category: "friendship",
+        categoryName: "За дружбу",
+        text: "Настоящий друг - это тот, кто приходит, когда все уходят. Кто верит в тебя, когда ты сам в себя не веришь. Кто поднимет тебя, когда весь мир толкает вниз.",
+        ending: "За дружбу!"
+    },
+    {
+        category: "friendship",
+        categoryName: "За дружбу",
+        text: "Давайте выпьем за то, чтобы у нас всегда были друзья, с которыми можно и в огонь, и в воду. А ещё лучше - за этим столом, с хорошим застольем!",
+        ending: "За нас!"
+    },
+    {
+        category: "love",
+        categoryName: "За любовь",
+        text: "Любовь - это когда один человек знает все твои слабости, но никогда не использует их против тебя. Когда вместе молчать так же хорошо, как и разговаривать.",
+        ending: "За настоящую любовь!"
+    },
+    {
+        category: "love",
+        categoryName: "За любовь",
+        text: "Пусть любовь будет не как огонь свечи, который гаснет от ветра, а как пламя маяка - чем сильнее шторм, тем ярче свет!",
+        ending: "За любовь, которая вечна!"
+    },
+    {
+        category: "health",
+        categoryName: "За здоровье",
+        text: "На Кавказе говорят: когда человек здоров - у него тысяча желаний, когда болен - только одно. Так давайте выпьем за то, чтобы у нас всегда было тысяча желаний!",
+        ending: "За здоровье!"
+    },
+    {
+        category: "health",
+        categoryName: "За здоровье",
+        text: "Выпьем за то, чтобы мы болели только морской болезнью на собственной яхте и высотной болезнью на вершине успеха!",
+        ending: "Будьте здоровы!"
+    },
+    {
+        category: "humor",
+        categoryName: "Смешной",
+        text: "Давайте выпьем за то, чтобы наши желания всегда совпадали с нашими возможностями. А если не совпадают - чтобы хотя бы возможности были больше!",
+        ending: "Ну, за нас!"
+    },
+    {
+        category: "humor",
+        categoryName: "Смешной",
+        text: "Говорят, что алкоголь убивает клетки мозга. Но я думаю, что выживают сильнейшие! Так давайте выпьем за естественный отбор!",
+        ending: "За науку!"
+    },
+    {
+        category: "humor",
+        categoryName: "Смешной",
+        text: "Выпьем за то, чтобы мы всегда находили выход из любой ситуации. А если не находили выход - чтобы хотя бы находили бар поблизости!",
+        ending: "За находчивость!"
+    },
+    {
+        category: "wisdom",
+        categoryName: "Мудрый",
+        text: "Один мудрец сказал: жизнь слишком коротка, чтобы пить плохое вино, и слишком прекрасна, чтобы не наслаждаться каждым мгновением. Цените то, что имеете, и стремитесь к тому, о чём мечтаете.",
+        ending: "За мудрость!"
+    },
+    {
+        category: "wisdom",
+        categoryName: "Мудрый",
+        text: "В жизни есть три вещи, которые нельзя вернуть: время, слово и возможность. Так давайте не будем терять ни минуты, говорить только добрые слова и пользоваться каждым шансом!",
+        ending: "За жизнь!"
+    },
+    {
+        category: "wisdom",
+        categoryName: "Мудрый",
+        text: "Старый грузин говорил: счастье - это когда утром хочется на работу, а вечером - домой. Пусть у каждого из нас будет такая работа и такой дом!",
+        ending: "За счастье!"
+    },
+    {
+        category: "birthday",
+        categoryName: "День рождения",
+        text: "В этот день хочу пожелать: пусть мечты сбываются быстрее, чем ты их придумываешь, деньги приходят чаще, чем уходят, а друзья окружают теплом круглый год!",
+        ending: "С праздником!"
+    },
+    {
+        category: "love",
+        categoryName: "За любовь",
+        text: "Выпьем за тех, кто нас любит, за тех, кого любим мы. И пусть те, кого мы любим, любят нас! А если кто-то нас не любит - пусть просто завидует!",
+        ending: "За любовь и взаимность!"
+    },
+    {
+        category: "health",
+        categoryName: "За здоровье",
+        text: "Пусть единственной температурой в вашей жизни будет температура чая за этим столом, единственным давлением - давление пробки от шампанского, а единственным уколом - укол совести за третью порцию!",
+        ending: "За крепкое здоровье!"
+    }
+];
+
+function renderToasts(filter) {
+    const grid = document.getElementById('toastsGrid');
+    const filtered = filter === 'all' ? toasts : toasts.filter(t => t.category === filter);
+
+    grid.innerHTML = filtered.map(t => `
+        <div class="toast-card" data-category="${t.category}">
+            <span class="category">${t.categoryName}</span>
+            <div class="text">${t.text}</div>
+            <div class="ending">${t.ending}</div>
+        </div>
+    `).join('');
+}
+
+function filterToasts(category) {
+    document.querySelectorAll('.controls button').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    renderToasts(category);
+}
+
+function showRandom() {
+    const toast = toasts[Math.floor(Math.random() * toasts.length)];
+    const el = document.getElementById('randomResult');
+    el.classList.remove('show');
+    setTimeout(() => {
+        el.innerHTML = `<div class="text">${toast.text}</div><div class="ending" style="color:#f5c542;margin-top:10px;">${toast.ending}</div>`;
+        el.classList.add('show');
+    }, 100);
+}
+
+renderToasts('all');
+</script>
+
+</body>
+</html>
